@@ -224,7 +224,7 @@ void CNT_GSM_CreateSMSText(uint16_t variant)
   unsigned char  twopo[] = ":";
   unsigned char  slash[] = "/";  
   unsigned char alcnt[] = "Alarms: ";
-  unsigned char vlts[] = "V=";
+  unsigned char vlts[] = "V(VLIGS)=";
   unsigned char tmps[] = "T=";
   unsigned char head[] = "CNT Online. Pulses= ";
   unsigned char headalarm[] = "CNT ALARM! Pulses=";
@@ -257,7 +257,10 @@ void CNT_GSM_CreateSMSText(uint16_t variant)
         itoa(Alarms2Count, hs1); concat(smstext, hs1); concat(smstext, comma);
         
         concat(smstext, vlts);
+        itoa(Volt_VCC,   hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Volt_LIBAT, hs1); concat(smstext, hs1); concat(smstext, slash);
+        itoa(Volt_INSTR, hs1); concat(smstext, hs1); concat(smstext, slash);
+        itoa(Volt_GSMMO, hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Volt_SOBAT, hs1); concat(smstext, hs1); concat(smstext, comma);
         break;
      }
@@ -274,7 +277,10 @@ void CNT_GSM_CreateSMSText(uint16_t variant)
         itoa(Alarms2Count, hs1); concat(smstext, hs1); concat(smstext, comma);
         
         concat(smstext, vlts);
+        itoa(Volt_VCC,   hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Volt_LIBAT, hs1); concat(smstext, hs1); concat(smstext, slash);
+        itoa(Volt_INSTR, hs1); concat(smstext, hs1); concat(smstext, slash);
+        itoa(Volt_GSMMO, hs1); concat(smstext, hs1); concat(smstext, slash);
         itoa(Volt_SOBAT, hs1); concat(smstext, hs1); concat(smstext, comma);
         break;
     }
@@ -335,7 +341,12 @@ uint16_t CNT_GSM_SendAlarmSMS   (void)  // immediatelly charge battery and send 
         CNT_MGMT_GetRAIN(); // get adc correction
         CNT_GetVoltages(); 
         CNT_GPIO_CheckChannel();   // check channel circuit
- 
+    
+   
+        put_atcmd("AT+CSMP=49,169,0,0");  // sms delivery request config
+        CNT_DummyDelay(300000); // delay x10 nops - debug
+        get_string();  // get ok
+        
         put_atcmd("AT+CMGF=1"); // select SMS format - text
         CNT_DummyDelay(1000000); // delay x10 nops - debug
         get_string();        
